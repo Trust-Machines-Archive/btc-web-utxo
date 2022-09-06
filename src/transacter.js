@@ -1,4 +1,17 @@
 let specificUTXO;
+let everyUTXO
+
+async function load_utxos() {
+  const fromAddr = document.getElementById('from-address').value.trim()
+  let utxos = bsk.config.network.getNetworkedUTXOs(fromAddr)
+  return utxos.then((all) => {
+    everyUTXO = all
+    console.log("utxo0", all[0])
+    let total = all.reduce((memo, utxo) => {return memo + utxo.value}, 0)
+    let msg = all.length + " UTXOs found. total BTC: " + total/10**8
+    document.getElementById('from-address-detail').textContent = msg
+  })
+}
 
 bsk.config.network.getUTXOs = (address) => {
   return bsk.config.network.getNetworkedUTXOs(address)
@@ -147,6 +160,23 @@ function generate() {
         console.log(err)
       })
   })
+}
+
+function generate_transfer_uxto() {
+  const fromAddr = document.getElementById('from-address').value.trim()
+  const toAddress = document.getElementById('to-address').value.trim()
+  console.log('from', fromAddr, 'to', toAddress, everyUTXO.length, everyUTXO[0])
+
+  const txB = new btc.TransactionBuilder()
+  let value = 0
+  everyUTXO.map((utxo) => {
+    txB.addInput(utxo.tx_hash, utxo.tx_output_n)
+    value = value + utxo.value
+  })
+  txB.addOutput(toAddress, value)
+  console.log('post tx', txB)
+  let tx = txB.buildIncomplete()
+  displayMessage('tx', `Generated ${value} ${tx.toHex()}`, 'Generated')
 }
 
 function generate_transfer() {
