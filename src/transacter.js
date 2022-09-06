@@ -22,11 +22,16 @@ bsk.config.network.getUTXOs = (address) => {
 bsk.config.network.getFeeRate = function() {
   return fetch('https://bitcoinfees.earn.com/api/v1/fees/recommended')
       .then(resp => resp.json())
-      .then(rates => Math.floor(2.3 * rates.fastestFee))
+      .then(rates => Math.floor(2.3 * (rates.fastestFee / 5)))
 }
 
 bsk.config.network.getConsensusHash = function() {
   return Promise.resolve("00000000000000000000000000000000")
+}
+
+function setLocalTestnet() {
+  bsk.config.network.MAGIC_BYTES = 'dd'
+  bsk.config.network.blockstackAPIUrl = 'http://172.17.0.2:6270'
 }
 
 function getPath() {
@@ -132,12 +137,12 @@ function generate() {
       })
       .then(jsonOutput => Buff.from(JSON.stringify(jsonOutput))
             .toString('base64'))
-      .then(payload => displayMessage('prestxop-tx', `Payload: <br/> <br/> ${payload}`, 'Unsigned Pre-STX Operation Transaction'))
+      .then(payload => displayMessage('tx', `Payload: <br/> <br/> ${payload}`, 'Unsigned Pre-STX Operation Transaction'))
       .catch(err => {
         if (err.name === 'NotEnoughFundsError') {
-          displayMessage('prestxop-tx', `Not enough BTC funds to pay BTC fee. <br/> You should send a little over ${parseInt(err.leftToFund)*2} satoshis to ${btcFromAddr}`, 'ERROR')
+          displayMessage('tx', `Not enough BTC funds to pay BTC fee. <br/> You should send a little over ${parseInt(err.leftToFund)*2} satoshis to ${btcFromAddr}`, 'ERROR')
         } else {
-          displayMessage('prestxop-tx', `Failed to generate transaction: <br/><br/> ${err}`, 'ERROR')
+          displayMessage('tx', `Failed to generate transaction: <br/><br/> ${err}`, 'ERROR')
         }
         console.log(err)
       })
@@ -312,7 +317,7 @@ function generate_stacking() {
                                          undefined,
                                          true)
       .then(rawTX => {
-        console.log('=== Partially Signed Token Transfer ===')
+        console.log('=== Partially Signed Stacking Tx ===')
         console.log(rawTX)
         return rawTX
       })
@@ -407,7 +412,6 @@ function checkDecode() {
   STX to address:   ${toSTXAddress}<br/>
   microstacks amount: ${micro_amount}<br/>
   partially signed: ${partially_signed}<br/>
-  BTC consumed: ${total_btc}<br/>
   =======================================================<br/>
 `;
     displayMessage('tx', message, 'Decoded/Checked Transaction');
@@ -420,7 +424,20 @@ function checkDecode() {
   ================== Pre-STX Op =========================<br/>
   STX from address: ${fromSTXAddress}<br/>
   partially signed: ${partially_signed}<br/>
-  BTC consumed: ${total_btc}<br/>
+  BTC left over for next tx: ${total_btc}<br/>
+  =======================================================<br/>
+`;
+    displayMessage('tx', message, 'Decoded/Checked Transaction');
+  } else if (op_code == 'x') {
+    const micro_amount = BigInteger.fromHex(script.slice(3, 19).toString('hex'))
+    const reward_cycles = BigInteger.fromHex(script.slice(19, 20).toString('hex'))
+    const message = `
+  ================== Stack STX Op =========================<br/>
+  STX from address:     ${fromSTXAddress}<br/>
+  PoX reward address:   ${toBTCAddress}<br/>
+  microstacks to stack: ${micro_amount}<br/>
+  reward cycles:        ${reward_cycles}<br/>
+  partially signed:     ${partially_signed}<br/>
   =======================================================<br/>
 `;
     displayMessage('tx', message, 'Decoded/Checked Transaction');
@@ -432,6 +449,10 @@ function checkDecode() {
 
 function transact(buildIncomplete) {
   const device = getDevice()
+  if (device == "ledger") {
+    console.log("signing with ledger")
+    return transactLedger(buildIncomplete)
+  }
   console.log("signing with trezor")
 
   const path = getPath()
@@ -458,6 +479,40 @@ function transact(buildIncomplete) {
       }
       return signPromise
     })
+    .then(() => {
+      const tx = buildIncomplete ? txB.buildIncomplete().toHex() : txB.build().toHex()
+      console.log('== SIGNED TX ==')
+      console.log(tx)
+      if (buildIncomplete) {
+        const jsonObj = { tx, redeemScript }
+        const payload = Buff.from(JSON.stringify(jsonObj))
+              .toString('base64')
+        displayMessage('tx', payload, 'Partially Signed Transaction')
+      } else {
+        displayMessage('tx', tx, 'Signed Transaction')
+      }
+    })
+    .catch(err => {
+      displayMessage('tx', `Failed to sign transaction: <br/><br/> ${err}`, 'ERROR')
+      console.log(err)
+    })
+}
+
+function transactLedger(buildIncomplete) {
+  const path = getPath()
+
+  const inputPayload = document.getElementById('transact-input').value.trim()
+
+  const { tx, redeemScript } = JSON.parse(Buff.from(inputPayload, 'base64'))
+
+  const txB = btc.TransactionBuilder.fromTransaction(
+    btc.Transaction.fromHex(tx))
+  const signer = new bskLedger.LedgerMultiSigSigner(path, redeemScript, LedgerTransport);
+  let signPromise = Promise.resolve()
+  for (let i = 0; i < txB.__inputs.length; i++) {
+    signPromise = signPromise.then(() => signer.signTransaction(txB, i))
+  }
+  return signPromise
     .then(() => {
       const tx = buildIncomplete ? txB.buildIncomplete().toHex() : txB.build().toHex()
       console.log('== SIGNED TX ==')

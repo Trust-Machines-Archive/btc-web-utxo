@@ -82,6 +82,7 @@
     <label for="transact-device">Device:</label>
     <select id="transact-device"  class="form-control" columns="20">
       <option value="trezor" selected>Trezor</option>
+      <option value="ledger">Ledger</option>
     </select>
   <div class="form-group">
     <label for="transact-input">Partial transaction:</label>
@@ -109,16 +110,6 @@
     <button type="button" onClick="checkDecode()" class="btn btn-primary">Check/Decode</button>
   </div>
 </form>
-</div>
-</div>
-</div>
-
-<div class="invisible container" id="prestxop-tx">
-<div class="panel panel-default">
-<div id="prestxop-tx-title" class="panel panel-heading panel-heading-custom">Signed Transaction</div>
-<div class="panel-body">
-<p><strong><text id="prestxop-tx-message"></text></strong></p>
-</div>
 </div>
 </div>
 </div>
