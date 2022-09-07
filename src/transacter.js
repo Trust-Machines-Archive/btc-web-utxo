@@ -164,6 +164,7 @@ function generate_transfer_uxto() {
   const fromAddr = document.getElementById('from-address').value.trim()
   const toAddress = document.getElementById('to-address').value.trim()
   const toSignPayloadField = document.getElementById('sign-input')
+  const postTxDetailField = document.getElementById('post-tx-detail')
 
   const txB = new btc.TransactionBuilder()
   let value = 0
@@ -179,6 +180,7 @@ function generate_transfer_uxto() {
   bsk.config.network.getFeeRate().then((fee_rate) => {
     let fee = tx_no_fee_len * fee_rate
     console.log('value', value, 'fee_rate', fee_rate, 'fee', fee)
+    postTxDetailField.textContent= "fee rate: "+fee_rate+" sat/byte. total fee: "+fee
     tx_no_fee.outs[0].value -= fee
     toSignPayloadField.value = txB.buildIncomplete().toHex()
   })
