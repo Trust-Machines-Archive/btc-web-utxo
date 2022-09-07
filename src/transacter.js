@@ -76,10 +76,7 @@ function displayMessage(name, message, title) {
   }
 }
 
-function sign() {
-  const path = getPath()
-  const message = document.getElementById('sign-input').value.trim()
-
+function trezorSign(path, message) {
   return TrezorConnect.signMessage({ path, message, coin: 'BTC' })
     .then(result => {
       if (!result.success) {
@@ -166,7 +163,7 @@ function generate() {
 function generate_transfer_uxto() {
   const fromAddr = document.getElementById('from-address').value.trim()
   const toAddress = document.getElementById('to-address').value.trim()
-  const toSignPayloadField = document.getElementById('transact-input')
+  const toSignPayloadField = document.getElementById('sign-input')
 
   const txB = new btc.TransactionBuilder()
   let value = 0
@@ -183,7 +180,6 @@ function generate_transfer_uxto() {
     let fee = tx_no_fee_len * fee_rate
     console.log('value', value, 'fee_rate', fee_rate, 'fee', fee)
     tx_no_fee.outs[0].value -= fee
-    displayMessage('tx', `Generated ${value} ${tx_no_fee.toHex()}`, 'Generated')
     toSignPayloadField.value = txB.buildIncomplete().toHex()
   })
 }
@@ -193,14 +189,13 @@ function getDevice() {
 }
 
 async function hardware_sign() {
-  const tx_hex = document.getElementById('transact-input').value.trim()
+  const tx_hex = document.getElementById('sign-input').value.trim()
   const txB = btc.TransactionBuilder.fromTransaction(btc.Transaction.fromHex(tx_hex))
 
   const device =  document.getElementById('transact-device').value.trim()
   if (device == "ledger") {
   } else if (device == "trezor") {
-    const result = await TrezorConnect.signTransaction({coin: 'BTC', inputs: txB.ins, outpus: txB.outs});
-    console.log(result)
+    trezorSign(getPath(), txB)
   }
 }
 
