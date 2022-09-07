@@ -3,12 +3,13 @@ let everyUTXO
 
 async function load_utxos() {
   const fromAddr = document.getElementById('from-address').value.trim()
+  const utxoCount= document.getElementById('utxo-count').value.trim()
   let utxos = bsk.config.network.getNetworkedUTXOs(fromAddr)
   return utxos.then((all) => {
-    everyUTXO = all
+    everyUTXO = all.slice(0, utxoCount)
     console.log("utxo0", all[0])
-    let total = all.reduce((memo, utxo) => {return memo + utxo.value}, 0)
-    let msg = all.length + " UTXOs found. total BTC: " + total/10**8
+    let total = everyUTXO.reduce((memo, utxo) => {return memo + utxo.value}, 0)
+    let msg = everyUTXO.length + " UTXOs loaded (from "+all.length+"). total BTC: " + total/10**8
     document.getElementById('from-address-detail').textContent = msg
   })
 }
@@ -165,18 +166,26 @@ function generate() {
 function generate_transfer_uxto() {
   const fromAddr = document.getElementById('from-address').value.trim()
   const toAddress = document.getElementById('to-address').value.trim()
-  console.log('from', fromAddr, 'to', toAddress, everyUTXO.length, everyUTXO[0])
+  const toSignPayloadField = document.getElementById('transact-input')
 
   const txB = new btc.TransactionBuilder()
   let value = 0
-  everyUTXO.map((utxo) => {
+  everyUTXO.map((utxo, idx) => {
     txB.addInput(utxo.tx_hash, utxo.tx_output_n)
     value = value + utxo.value
   })
   txB.addOutput(toAddress, value)
-  console.log('post tx', txB)
-  let tx = txB.buildIncomplete()
-  displayMessage('tx', `Generated ${value} ${tx.toHex()}`, 'Generated')
+  let tx_no_fee = txB.buildIncomplete()
+  let tx_no_fee_len = tx_no_fee.toHex().length/2
+  console.log('tx_no_fee', tx_no_fee, 'tx_no_fee_len', tx_no_fee_len)
+
+  bsk.config.network.getFeeRate().then((fee_rate) => {
+    let fee = tx_no_fee_len * fee_rate
+    console.log('value', value, 'fee_rate', fee_rate, 'fee', fee)
+    tx_no_fee.outs[0].value -= fee
+    displayMessage('tx', `Generated ${value} ${tx_no_fee.toHex()}`, 'Generated')
+    toSignPayloadField.value = txB.buildIncomplete().toHex()
+  })
 }
 
 function generate_transfer() {
