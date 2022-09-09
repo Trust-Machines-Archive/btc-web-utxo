@@ -10,11 +10,9 @@ async function load_utxos() {
     fromAddr.value.trim() +
     "/unspents?limit=50&skip=0";
   let utxos = fetch(url).then((result) => result.json());
-  return utxos.then((all) => {
-    everyUTXO = all.slice(0, utxoCount.value.trim());
-    let value = everyUTXO.reduce((memo, tx) => {
-      return memo + tx.value;
-    }, 0);
+  return utxos.then((response) => {
+    everyUTXO = response.unspents.slice(0, utxoCount.value.trim());
+    let value = everyUTXO.reduce((memo, tx) => memo + tx.value, 0);
     let msg =
       everyUTXO.length +
       " UTXOs loaded (from " +
@@ -34,7 +32,8 @@ async function load_utxos() {
       return fetch(url, headers).then((result) => {
         result.json().then((json) => {
           console.log(json);
-          msg = "utxo detail #" + idx + "/" + everyUTXO.length + " loaded";
+          msg =
+            "utxo detail #" + (idx + 1) + "/" + everyUTXO.length + " loaded";
           document.getElementById("utxo-count-detail").textContent = msg;
         });
       });
