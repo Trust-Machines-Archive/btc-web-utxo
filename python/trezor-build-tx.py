@@ -204,10 +204,10 @@ def get_outputs(address, amount) -> List[messages.TxOutputType]:
 @click.option("--from-address", help="bitcoin address to send from")
 @click.option("--utxo-count", help="number of UTXOs to load")
 def sign(from_address, utxo_count) -> None:
-    coin = 'Bitcoin'
+    coin = 'Bitcoin' #'Testnet'
     providers = ['blockchaininfo']  # max: 1000
     srv = bitcoinlib.services.services.Service(providers=providers)
-    print(f"{providers[0]} {from_address} {utxo_count}")
+    echo(f"{providers[0]} {from_address} {utxo_count}")
     utxos = srv.getutxos(from_address, limit=int(utxo_count))
     amount = sum(utxo['value'] for utxo in utxos)
     echo(f'found utxos: {len(utxos):_} amount: {amount:_}')
