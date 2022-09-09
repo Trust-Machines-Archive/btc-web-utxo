@@ -2,20 +2,20 @@ let everyUTXO;
 
 const fromAddr = (<HTMLInputElement>(
   document.getElementById("from-address")
-)).value.trim();
+))
 const utxoCount = (<HTMLInputElement>(
   document.getElementById("utxo-count")
-)).value.trim();
+))
 const toAddress = (<HTMLInputElement>(
   document.getElementById("to-address")
-)).value.trim();
+))
 
 async function load_utxos() {
   let url =
-    "https://www.bitgo.com/api/v1/address/14CEjTd5ci3228J45GdnGeUKLSSeCWUQxK/unspents?limit=50&skip=0";
-  let utxos = fetch(fromAddr).then((result) => result.json());
+    "https://www.bitgo.com/api/v1/address/"+fromAddr.value.trim()+"/unspents?limit=50&skip=0";
+  let utxos = fetch(url).then((result) => result.json());
   return utxos.then((all) => {
-    everyUTXO = all.slice(0, utxoCount);
+    everyUTXO = all.slice(0, utxoCount.value.trim());
     let value = everyUTXO.reduce((memo, tx) => {
       return memo + tx.value;
     }, 0);
