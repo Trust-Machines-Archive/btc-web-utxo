@@ -1,16 +1,33 @@
-let specificUTXO;
 let everyUTXO
 
 async function load_utxos() {
   const fromAddr = document.getElementById('from-address').value.trim()
   const utxoCount= document.getElementById('utxo-count').value.trim()
+
+  // let url = "https://www.bitgo.com/api/v1/address/14CEjTd5ci3228J45GdnGeUKLSSeCWUQxK/unspents?limit=50&skip=0"
   let utxos = bsk.config.network.getNetworkedUTXOs(fromAddr)
   return utxos.then((all) => {
     everyUTXO = all.slice(0, utxoCount)
-    console.log("utxo0", all[0])
-    let total = everyUTXO.reduce((memo, utxo) => {return memo + utxo.value}, 0)
-    let msg = everyUTXO.length + " UTXOs loaded (from "+all.length+"). total BTC: " + total/10**8
+    let value = everyUTXO.reduce((memo, tx) => { return memo + tx.value }, 0)
+    let msg = everyUTXO.length + " UTXOs loaded (from "+everyUTXO.length+"). total BTC: " + value/10**8
     document.getElementById('from-address-detail').textContent = msg
+    
+    // load individual UTXOs
+    return everyUTXO.map((tx, idx) => {
+      console.log('mapwtf', tx)
+      //let headers = {'User-Agent': 'trezorlib'}
+      //let webserver = (idx % 5) + 1
+      //let url = "https://btc"+webserver+".trezor.io/api/tx-specific/"+tx.tx_hash
+      let headers = {}
+      let url = "https://www.bitgo.com/api/v1/tx/"+tx.tx_hash
+      return fetch(url, headers).then((result) => {
+        result.json().then((json) => {
+          console.log(json)
+          msg = "utxo detail #"+idx+"/"+everyUTXO.length+" loaded"
+          document.getElementById('utxo-count-detail').textContent = msg
+        })
+      })
+    })
   })
 }
 
@@ -18,24 +35,12 @@ function generate_transfer_uxto() {
   const fromAddr = document.getElementById('from-address').value.trim()
   const toAddress = document.getElementById('to-address').value.trim()
 
-  const txB = new btc.TransactionBuilder()
-  let value = 0
-  everyUTXO.map((utxo, idx) => {
-    txB.addInput(utxo.tx_hash, utxo.tx_output_n)
-    value = value + utxo.value
-  })
+  //  txB.addInput(utxo.tx_hash, utxo.tx_output_n)
+  
+  // send to toAddress
   txB.addOutput(toAddress, value)
-  let tx_no_fee = txB.buildIncomplete()
-  let tx_no_fee_len = tx_no_fee.toHex().length/2
-  console.log('tx_no_fee', tx_no_fee, 'tx_no_fee_len', tx_no_fee_len)
 
-  bsk.config.network.getFeeRate().then((fee_rate) => {
-    let fee = tx_no_fee_len * fee_rate
-    console.log('value', value, 'fee_rate', fee_rate, 'fee', fee)
-    postTxDetailField.textContent= "fee rate: "+fee_rate+" sat/byte. total fee: "+fee
-    tx_no_fee.outs[0].value -= fee
-    toSignPayloadField.value = txB.buildIncomplete().toHex()
-  })
+
 }
 
 async function hardware_sign() {
@@ -49,6 +54,7 @@ async function hardware_sign() {
   }
 }
 
+let specificUTXO;
 bsk.config.network.getUTXOs = (address) => {
   return bsk.config.network.getNetworkedUTXOs(address)
     .then(
