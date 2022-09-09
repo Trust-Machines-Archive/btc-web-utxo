@@ -6,7 +6,7 @@
   "scripts": {
     "clean": "rm -rf dist/ && mkdir dist",
     "build-libs": "browserify -o dist/distribute.js src/dependencies.js",
-    "copy": "cp src/index.html src/bootstrap.min.css src/transacter.js dist/",
+    "copy": "cp src/index.html src/bootstrap.min.css dist/",
     "build": "npm run clean && npm run build-libs && npm run copy",
     "clean-distribute": "rm -rf webscript-multisig-stx-btc/ && rm -f webscript-multisig-stx-btc.zip",
     "distribute": "npm run clean-distribute && npm run build && npm run distribute-finish",
@@ -16,10 +16,11 @@
   "license": "MIT",
   "repository": "github:hirosystems/multisig-stx-btc",
   "dependencies": {
-    "trezor-connect": "8.2.11",
-    "browserify": "^16.2.2"
+    "browserify": "^16.2.2",
+    "trezor-connect": "8.2.11"
   },
   "devDependencies": {
+    "prettier": "2.7.1",
     "typescript": "^4.8.3"
   }
 }

@@ -3,7 +3,7 @@
 all: dist/transacter.js dist/index.html dist/distribute.js
 
 dist/transacter.js: src/transacter.ts 
-	./node_modules/.bin/tsc
+	npx tsc
 	
 dist/index.html: src/index.html
 	npm run copy
@@ -11,3 +11,5 @@ dist/index.html: src/index.html
 dist/distribte.js: src/distribute.js
 	npm run build
 	
+format:
+	npx prettier --write src
