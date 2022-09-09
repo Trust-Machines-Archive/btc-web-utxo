@@ -6,6 +6,7 @@ poetry add trezor
 python3 main.py > tx.json
 trezorctl btc sign-tx tx.json
 
+# https://github.com/trezor/trezor-firmware/blob/master/python/tools/build_tx.py
 # https://github.com/trezor/trezor-firmware/tree/master/python/tools
 # https://github.com/LedgerHQ/ledgerctl
 '''
@@ -200,19 +201,20 @@ def get_outputs(address, amount) -> List[messages.TxOutputType]:
 
 
 @click.command()
-def sign() -> None:
-    address = '1111111111111111111114oLvT2'
-
+@click.option("--from-address", help="bitcoin address to send from")
+@click.option("--utxo-count", help="number of UTXOs to load")
+def sign(from_address, utxo_count) -> None:
     coin = 'Bitcoin'
     providers = ['blockchaininfo']  # max: 1000
     srv = bitcoinlib.services.services.Service(providers=providers)
-    utxos = srv.getutxos(address, limit=1000)
+    print(f"{providers[0]} {from_address} {utxo_count}")
+    utxos = srv.getutxos(from_address, limit=int(utxo_count))
     amount = sum(utxo['value'] for utxo in utxos)
     echo(f'found utxos: {len(utxos):_} amount: {amount:_}')
 
     inputs, txes = get_inputs_multithreaded(utxos)
     echo(f'inputs={len(inputs)} txes={len(txes)}')
-    outputs = get_outputs(address, amount)
+    outputs = get_outputs(from_address, amount)
 
     version = 2
     lock_time = 0
