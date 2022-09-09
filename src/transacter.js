@@ -14,6 +14,41 @@ async function load_utxos() {
   })
 }
 
+function generate_transfer_uxto() {
+  const fromAddr = document.getElementById('from-address').value.trim()
+  const toAddress = document.getElementById('to-address').value.trim()
+
+  const txB = new btc.TransactionBuilder()
+  let value = 0
+  everyUTXO.map((utxo, idx) => {
+    txB.addInput(utxo.tx_hash, utxo.tx_output_n)
+    value = value + utxo.value
+  })
+  txB.addOutput(toAddress, value)
+  let tx_no_fee = txB.buildIncomplete()
+  let tx_no_fee_len = tx_no_fee.toHex().length/2
+  console.log('tx_no_fee', tx_no_fee, 'tx_no_fee_len', tx_no_fee_len)
+
+  bsk.config.network.getFeeRate().then((fee_rate) => {
+    let fee = tx_no_fee_len * fee_rate
+    console.log('value', value, 'fee_rate', fee_rate, 'fee', fee)
+    postTxDetailField.textContent= "fee rate: "+fee_rate+" sat/byte. total fee: "+fee
+    tx_no_fee.outs[0].value -= fee
+    toSignPayloadField.value = txB.buildIncomplete().toHex()
+  })
+}
+
+async function hardware_sign() {
+  const tx_hex = document.getElementById('sign-input').value.trim()
+  const txB = btc.TransactionBuilder.fromTransaction(btc.Transaction.fromHex(tx_hex))
+
+  const device =  document.getElementById('transact-device').value.trim()
+  if (device == "ledger") {
+  } else if (device == "trezor") {
+    trezorSign(getPath(), txB)
+  }
+}
+
 bsk.config.network.getUTXOs = (address) => {
   return bsk.config.network.getNetworkedUTXOs(address)
     .then(
@@ -43,11 +78,6 @@ bsk.config.network.getConsensusHash = function() {
   return Promise.resolve("00000000000000000000000000000000")
 }
 
-function setLocalTestnet() {
-  bsk.config.network.MAGIC_BYTES = 'dd'
-  bsk.config.network.blockstackAPIUrl = 'http://172.17.0.2:6270'
-}
-
 function getPath() {
   return document.getElementById('transact-path').value.trim()
 }
@@ -64,17 +94,6 @@ function getXPUB() {
     })
 }
 
-function displayMessage(name, message, title) {
-  const container = document.getElementById(name)
-  container.classList.remove('invisible')
-  const displayArea = document.getElementById(`${name}-message`)
-  displayArea.innerHTML = message
-
-  if (title) {
-    const titleArea = document.getElementById(`${name}-title`)
-    titleArea.innerHTML = title
-  }
-}
 
 function trezorSign(path, message) {
   return TrezorConnect.signMessage({ path, message, coin: 'BTC' })
@@ -160,46 +179,6 @@ function generate() {
   })
 }
 
-function generate_transfer_uxto() {
-  const fromAddr = document.getElementById('from-address').value.trim()
-  const toAddress = document.getElementById('to-address').value.trim()
-  const toSignPayloadField = document.getElementById('sign-input')
-  const postTxDetailField = document.getElementById('post-tx-detail')
-
-  const txB = new btc.TransactionBuilder()
-  let value = 0
-  everyUTXO.map((utxo, idx) => {
-    txB.addInput(utxo.tx_hash, utxo.tx_output_n)
-    value = value + utxo.value
-  })
-  txB.addOutput(toAddress, value)
-  let tx_no_fee = txB.buildIncomplete()
-  let tx_no_fee_len = tx_no_fee.toHex().length/2
-  console.log('tx_no_fee', tx_no_fee, 'tx_no_fee_len', tx_no_fee_len)
-
-  bsk.config.network.getFeeRate().then((fee_rate) => {
-    let fee = tx_no_fee_len * fee_rate
-    console.log('value', value, 'fee_rate', fee_rate, 'fee', fee)
-    postTxDetailField.textContent= "fee rate: "+fee_rate+" sat/byte. total fee: "+fee
-    tx_no_fee.outs[0].value -= fee
-    toSignPayloadField.value = txB.buildIncomplete().toHex()
-  })
-}
-
-function getDevice() {
-  return document.getElementById('transact-device').value.trim()
-}
-
-async function hardware_sign() {
-  const tx_hex = document.getElementById('sign-input').value.trim()
-  const txB = btc.TransactionBuilder.fromTransaction(btc.Transaction.fromHex(tx_hex))
-
-  const device =  document.getElementById('transact-device').value.trim()
-  if (device == "ledger") {
-  } else if (device == "trezor") {
-    trezorSign(getPath(), txB)
-  }
-}
 
 function transact(buildIncomplete) {
   const device = getDevice()
