@@ -1,3 +1,7 @@
+//import TrezorConnect from '@trezor/connect';
+//import TrezorConnect from '@trezor/connect-web';
+//const TrezorConnect = require('trezor-connect')
+declare let TrezorConnect: any;
 let everyUTXO;
 
 const fromAddr = <HTMLInputElement>document.getElementById("from-address");
@@ -23,7 +27,6 @@ async function load_utxos() {
 
     // load individual UTXOs
     return everyUTXO.map((tx, idx) => {
-      console.log("mapwtf", tx);
       //let headers = {'User-Agent': 'trezorlib'}
       //let webserver = (idx % 5) + 1
       //let url = "https://btc"+webserver+".trezor.io/api/tx-specific/"+tx.tx_hash
@@ -42,7 +45,31 @@ async function load_utxos() {
 }
 
 function generate_transfer_uxto() {
+  let coin = "Bitcoin";
+  let inputs = [];
+  let outputs = [];
+  let version = 2;
+  let lock_time = 0;
+  let txdata = []
   //  txB.addInput(utxo.tx_hash, utxo.tx_output_n)
   // send to toAddress
   //txB.addOutput(toAddress, value)
+  let params = {
+    coin: coin,
+    inputs: inputs,
+    outputs: outputs,
+    details: {
+      version: version,
+      lock_time: lock_time,
+    },
+    prev_txes: {
+      txhash: txdata,
+    },
+  };
+
+  console.log('signTransaction', params)
+  // https://github.com/trezor/connect/blob/develop/docs/methods/signTransaction.md
+  TrezorConnect.signTransaction(params).then(function (result) {
+    console.log(result);
+  });
 }
