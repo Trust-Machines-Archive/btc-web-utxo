@@ -24,13 +24,18 @@ function tx_detail(tx, idx) {
 }
 
 async function load_utxos() {
+  // clear out the old data
+  everyUTXO = []
+  let count =  utxoCount.value.trim()
+  let msg = "Loading "+count+" UTXOs"
+  document.getElementById("from-address-detail").textContent = msg;
   let url =
     "https://www.bitgo.com/api/v1/address/" +
     fromAddr.value.trim() +
-    "/unspents?limit=50&skip=0";
+    "/unspents?limit="+count+"&skip=0";
   let utxos = fetch(url).then((result) => result.json());
   return utxos.then((response) => {
-    everyUTXO = response.unspents.slice(0, utxoCount.value.trim());
+    everyUTXO = response.unspents.slice(0, count);
     let value = everyUTXO.reduce((memo, tx) => memo + tx.value, 0);
     let msg =
       everyUTXO.length +
