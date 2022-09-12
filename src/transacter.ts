@@ -8,6 +8,21 @@ const fromAddr = <HTMLInputElement>document.getElementById("from-address");
 const utxoCount = <HTMLInputElement>document.getElementById("utxo-count");
 const toAddress = <HTMLInputElement>document.getElementById("to-address");
 
+function tx_detail(tx, idx) {
+  //let headers = {'User-Agent': 'trezorlib'}
+  //let webserver = (idx % 5) + 1
+  //let url = "https://btc"+webserver+".trezor.io/api/tx-specific/"+tx.tx_hash
+  let headers = {};
+  let url = "https://www.bitgo.com/api/v1/tx/" + tx.tx_hash;
+  return fetch(url, headers).then((result) => {
+    result.json().then((json) => {
+      console.log(json);
+      let msg = "utxo detail #" + (idx + 1) + "/" + everyUTXO.length + " loaded";
+      document.getElementById("utxo-count-detail").textContent = msg;
+    });
+  });
+}
+
 async function load_utxos() {
   let url =
     "https://www.bitgo.com/api/v1/address/" +
@@ -26,21 +41,7 @@ async function load_utxos() {
     document.getElementById("from-address-detail").textContent = msg;
 
     // load individual UTXOs
-    return everyUTXO.map((tx, idx) => {
-      //let headers = {'User-Agent': 'trezorlib'}
-      //let webserver = (idx % 5) + 1
-      //let url = "https://btc"+webserver+".trezor.io/api/tx-specific/"+tx.tx_hash
-      let headers = {};
-      let url = "https://www.bitgo.com/api/v1/tx/" + tx.tx_hash;
-      return fetch(url, headers).then((result) => {
-        result.json().then((json) => {
-          console.log(json);
-          msg =
-            "utxo detail #" + (idx + 1) + "/" + everyUTXO.length + " loaded";
-          document.getElementById("utxo-count-detail").textContent = msg;
-        });
-      });
-    });
+    return everyUTXO.map((tx, idx) => tx_detail(tx, idx));
   });
 }
 
@@ -50,7 +51,7 @@ function generate_transfer_uxto() {
   let outputs = [];
   let version = 2;
   let lock_time = 0;
-  let txdata = []
+  let txdata = [];
   //  txB.addInput(utxo.tx_hash, utxo.tx_output_n)
   // send to toAddress
   //txB.addOutput(toAddress, value)
@@ -67,7 +68,7 @@ function generate_transfer_uxto() {
     },
   };
 
-  console.log('signTransaction', params)
+  console.log("signTransaction", params);
   // https://github.com/trezor/connect/blob/develop/docs/methods/signTransaction.md
   TrezorConnect.signTransaction(params).then(function (result) {
     console.log(result);
