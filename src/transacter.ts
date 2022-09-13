@@ -4,7 +4,7 @@
 declare let TrezorConnect: any;
 let everyUTXO;
 
-const fromAddr = <HTMLInputElement>document.getElementById("from-address");
+const fromAddress = <HTMLInputElement>document.getElementById("from-address");
 const utxoCount = <HTMLInputElement>document.getElementById("utxo-count");
 const toAddress = <HTMLInputElement>document.getElementById("to-address");
 
@@ -32,7 +32,7 @@ function load_utxos() {
   document.getElementById("from-address-detail").textContent = msg;
   let url =
     "https://www.bitgo.com/api/v1/address/" +
-    fromAddr.value.trim() +
+    fromAddress.value.trim() +
     "/unspents?limit=" +
     count +
     "&skip=0";
@@ -54,16 +54,21 @@ function load_utxos() {
 function generate_transfer_uxto() {
   let coin = "Bitcoin";
   let inputs = everyUTXO.map((tx) => {
-    console.log("what is a every tx", tx);
     return {
       prev_hash: tx.meta.tx_hash,
       prev_index: tx.meta.tx_output_n,
       amount: tx.meta.value,
-      address_n: "todo", //address_n,
+      address_n: "m/44'/0'/0'/0/0",
       script_type: "todo", //script_type,
     };
   });
-  let outputs = [];
+
+  let value = everyUTXO.reduce((memo, tx) => memo + tx.meta.value, 0);
+  let outputs = [{
+    address: toAddress.value.trim(),
+    script_type: 'PAYTOADDRESS',
+    amount: value
+  }];
   let version = 2;
   let lock_time = 0;
   let txdata = [];
