@@ -51,15 +51,26 @@ function load_utxos() {
     .then((all) => everyUTXO = all)
 }
 
+function bip44_to_int(path) {
+  // "m/44'/0'/0'/0/0"
+  return path.substring(2).split('/').map((part) => {
+    let int_val = parseInt(part)
+    if (part.endsWith("'")) {
+      int_val = int_val |  1 << 31
+    }
+    return int_val
+  })
+}
 function generate_transfer_uxto() {
   let coin = "Bitcoin";
   let inputs = everyUTXO.map((tx) => {
     return {
       prev_hash: tx.meta.tx_hash,
       prev_index: tx.meta.tx_output_n,
-      amount: tx.meta.value,
-      address_n: "m/44'/0'/0'/0/0",
-      script_type: "todo", //script_type,
+      amount: ""+tx.meta.value,
+      //address_n: bip44_to_int("m/44'/0'/0'/0/0"),
+      script_type: "EXTERNAL", //script_type,
+      script_pubkey: tx.meta.address
     };
   });
 
@@ -67,15 +78,14 @@ function generate_transfer_uxto() {
   let outputs = [{
     address: toAddress.value.trim(),
     script_type: 'PAYTOADDRESS',
-    amount: value
+    amount: ""+value
   }];
   let version = 2;
   let lock_time = 0;
   let txdata = [];
 
-  //  txB.addInput(utxo.tx_hash, utxo.tx_output_n)
-  // send to toAddress
-  //txB.addOutput(toAddress, value)
+  // txB.addInput(utxo.tx_hash, utxo.tx_output_n)
+  // txB.addOutput(toAddress, value)
 
   // https://github.com/trezor/connect/blob/develop/docs/methods/signTransaction.md
   let params = {
@@ -91,8 +101,8 @@ function generate_transfer_uxto() {
     },
   };
 
-  console.log("signTransaction", params);
+  console.log("signTransaction inputs", params);
   TrezorConnect.signTransaction(params).then(function (result) {
-    console.log(result);
+    console.log("signTransaction output", result);
   });
 }
