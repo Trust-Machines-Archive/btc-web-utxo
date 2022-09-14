@@ -3,8 +3,11 @@
 //const TrezorConnect = require('trezor-connect')
 declare let TrezorConnect: any;
 let everyUTXO;
+let fromAddressN;
 
-const fromAddress = <HTMLInputElement>document.getElementById("from-address");
+const fromAddressInput = <HTMLInputElement>(
+  document.getElementById("from-address")
+);
 const utxoCount = <HTMLInputElement>document.getElementById("utxo-count");
 const toAddress = <HTMLInputElement>document.getElementById("to-address");
 
@@ -24,15 +27,29 @@ function tx_detail(tx, idx) {
   });
 }
 
+function pick_trezor_account() {
+  document.getElementById("from-address-detail").textContent = ""
+  return TrezorConnect.getAccountInfo({ coin: "btc" }).then((out) => {
+    if (out.success) {
+      console.log("getAccountInfo", out);
+      fromAddressN = out.payload.addressPath;
+      fromAddressInput.value = out.payload.address;
+    } else {
+      document.getElementById("from-address-detail").textContent =
+        out.payload.error;
+    }
+  });
+}
+
 function load_utxos() {
   // clear out the old data
   everyUTXO = [];
   let count = utxoCount.value.trim();
-  let msg = "Loading " + count + " UTXOs";
+  let msg = "Loading " + count + " UTXOs...";
   document.getElementById("from-address-detail").textContent = msg;
   let url =
     "https://www.bitgo.com/api/v1/address/" +
-    fromAddress.value.trim() +
+    fromAddressInput.value.trim() +
     "/unspents?limit=" +
     count +
     "&skip=0";
@@ -46,20 +63,23 @@ function load_utxos() {
       document.getElementById("from-address-detail").textContent = msg;
 
       // load individual UTXOs
-      return Promise.all(everyUTXO.map((tx, idx) => tx_detail(tx, idx)))
+      return Promise.all(everyUTXO.map((tx, idx) => tx_detail(tx, idx)));
     })
-    .then((all) => everyUTXO = all)
+    .then((all) => (everyUTXO = all));
 }
 
 function bip44_to_int(path) {
   // "m/44'/0'/0'/0/0"
-  return path.substring(2).split('/').map((part) => {
-    let int_val = parseInt(part)
-    if (part.endsWith("'")) {
-      int_val = int_val |  1 << 31
-    }
-    return int_val
-  })
+  return path
+    .substring(2)
+    .split("/")
+    .map((part) => {
+      let int_val = parseInt(part);
+      if (part.endsWith("'")) {
+        int_val = int_val | (1 << 31);
+      }
+      return int_val;
+    });
 }
 function generate_transfer_uxto() {
   let coin = "Bitcoin";
@@ -67,19 +87,20 @@ function generate_transfer_uxto() {
     return {
       prev_hash: tx.meta.tx_hash,
       prev_index: tx.meta.tx_output_n,
-      amount: ""+tx.meta.value,
-      //address_n: bip44_to_int("m/44'/0'/0'/0/0"),
-      script_type: "EXTERNAL", //script_type,
-      script_pubkey: tx.meta.address
+      amount: "" + tx.meta.value,
+      address_n: fromAddressN
+      //script_type: "SPENDADDRESS", //script_type,
     };
   });
 
   let value = everyUTXO.reduce((memo, tx) => memo + tx.meta.value, 0);
-  let outputs = [{
-    address: toAddress.value.trim(),
-    script_type: 'PAYTOADDRESS',
-    amount: ""+value
-  }];
+  let outputs = [
+    {
+      address: toAddress.value.trim(),
+      script_type: "PAYTOADDRESS",
+      amount: "" + value,
+    },
+  ];
   let version = 2;
   let lock_time = 0;
   let txdata = [];

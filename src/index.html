@@ -27,6 +27,17 @@
           <form>
             <div class="form-group">
               <label for="transact-path">From Address (C32):</label>
+            </div>
+            <div class="form-group">
+              <button
+                type="button"
+                onClick="pick_trezor_account()"
+                class="btn btn-primary"
+              >
+                Pick Trezor-Controlled Address
+              </button>
+            </div>
+            <div class="form-group">
               <input
                 type="text"
                 id="from-address"
@@ -34,6 +45,7 @@
                 style="width: 400pt"
                 autocomplete="off"
                 value=""
+                disabled
               />
               <div id="from-address-detail"></div>
             </div>
