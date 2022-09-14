@@ -2,7 +2,7 @@
 //import TrezorConnect from '@trezor/connect-web';
 //const TrezorConnect = require('trezor-connect')
 declare let TrezorConnect: any;
-let everyUTXO;
+let everyUTXO = [];
 let fromAddressN;
 
 const fromAddressInput = <HTMLInputElement>(
@@ -28,12 +28,13 @@ function tx_detail(tx, idx) {
 }
 
 function pick_trezor_account() {
-  document.getElementById("from-address-detail").textContent = ""
+  document.getElementById("from-address-detail").textContent = "";
   return TrezorConnect.getAccountInfo({ coin: "btc" }).then((out) => {
     if (out.success) {
       console.log("getAccountInfo", out);
       fromAddressN = out.payload.addressPath;
       fromAddressInput.value = out.payload.address;
+      utxoCount.focus();
     } else {
       document.getElementById("from-address-detail").textContent =
         out.payload.error;
@@ -56,14 +57,19 @@ function load_utxos() {
   return fetch(url)
     .then((result) => result.json())
     .then((response) => {
-      everyUTXO = response.unspents.slice(0, count);
-      let value = everyUTXO.reduce((memo, tx) => memo + tx.value, 0);
-      let msg =
-        everyUTXO.length + " UTXOs loaded . total BTC: " + value / 10 ** 8;
-      document.getElementById("from-address-detail").textContent = msg;
+      if (response.error) {
+        document.getElementById("utxo-count-detail").textContent =
+          response.error;
+      } else {
+        everyUTXO = response.unspents.slice(0, count);
+        let value = everyUTXO.reduce((memo, tx) => memo + tx.value, 0);
+        let msg =
+          everyUTXO.length + " UTXOs loaded . total BTC: " + value / 10 ** 8;
+        document.getElementById("utxo-count-detail").textContent = msg;
 
-      // load individual UTXOs
-      return Promise.all(everyUTXO.map((tx, idx) => tx_detail(tx, idx)));
+        // load individual UTXOs
+        return Promise.all(everyUTXO.map((tx, idx) => tx_detail(tx, idx)));
+      }
     })
     .then((all) => (everyUTXO = all));
 }
@@ -88,7 +94,7 @@ function generate_transfer_uxto() {
       prev_hash: tx.meta.tx_hash,
       prev_index: tx.meta.tx_output_n,
       amount: "" + tx.meta.value,
-      address_n: fromAddressN
+      address_n: fromAddressN,
       //script_type: "SPENDADDRESS", //script_type,
     };
   });
@@ -124,6 +130,11 @@ function generate_transfer_uxto() {
 
   console.log("signTransaction inputs", params);
   TrezorConnect.signTransaction(params).then(function (result) {
-    console.log("signTransaction output", result);
+    if (result.success) {
+      console.log("signTransaction output", result);
+    } else {
+      document.getElementById("post-tx-detail").textContent =
+        result.payload.error;
+    }
   });
 }
