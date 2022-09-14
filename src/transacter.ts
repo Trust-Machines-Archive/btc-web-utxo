@@ -12,6 +12,7 @@ const fromAddressInput = <HTMLInputElement>(
 const fromAddressPathInput= <HTMLInputElement>document.getElementById("from-address-path");
 const utxoCountInput = <HTMLInputElement>document.getElementById("utxo-count");
 const toAddressInput = <HTMLInputElement>document.getElementById("to-address");
+const pushTxInput= <HTMLInputElement>document.getElementById("push-tx");
 
 function tx_detail(tx, idx) {
   //let headers = {'User-Agent': 'trezorlib'}
@@ -132,6 +133,7 @@ function generate_transfer_uxto() {
     prev_txes: {
       txhash: txdata,
     },
+    push: pushTxInput.checked
   };
 
   console.log("signTransaction inputs", params);
