@@ -9,8 +9,8 @@ const fromAddressInput = <HTMLInputElement>(
   document.getElementById("from-address")
 );
 const fromAddressPathInput= <HTMLInputElement>document.getElementById("from-address-path");
-const utxoCount = <HTMLInputElement>document.getElementById("utxo-count");
-const toAddress = <HTMLInputElement>document.getElementById("to-address");
+const utxoCountInput = <HTMLInputElement>document.getElementById("utxo-count");
+const toAddressInput = <HTMLInputElement>document.getElementById("to-address");
 
 function tx_detail(tx, idx) {
   //let headers = {'User-Agent': 'trezorlib'}
@@ -30,13 +30,14 @@ function tx_detail(tx, idx) {
 
 function pick_trezor_account() {
   document.getElementById("from-address-detail").textContent = "";
-  return TrezorConnect.getAccountInfo({ coin: "btc" }).then((out) => {
+  return TrezorConnect.getAccountInfo({ coin: "btc", details: "txs", tokens: "derived", defaultAccountType: 'legacy' }).then((out) => {
     if (out.success) {
       console.log("getAccountInfo", out);
       fromAddressN = out.payload.addressPath;
       fromAddressInput.value = out.payload.address
+      toAddressInput.value = out.payload.address
       fromAddressPathInput.value = out.payload.addressSerializedPath;
-      utxoCount.focus();
+      utxoCountInput.focus();
     } else {
       document.getElementById("from-address-detail").textContent =
         out.payload.error;
@@ -47,7 +48,7 @@ function pick_trezor_account() {
 function load_utxos() {
   // clear out the old data
   everyUTXO = [];
-  let count = utxoCount.value.trim();
+  let count = utxoCountInput.value.trim();
   let msg = "Loading " + count + " UTXOs...";
   document.getElementById("from-address-detail").textContent = msg;
   let url =
@@ -104,7 +105,7 @@ function generate_transfer_uxto() {
   let value = everyUTXO.reduce((memo, tx) => memo + tx.meta.value, 0);
   let outputs = [
     {
-      address: toAddress.value.trim(),
+      address: toAddressInput.value.trim(),
       script_type: "PAYTOADDRESS",
       amount: "" + value,
     },
