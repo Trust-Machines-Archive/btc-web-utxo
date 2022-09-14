@@ -8,6 +8,7 @@ let fromAddressN;
 const fromAddressInput = <HTMLInputElement>(
   document.getElementById("from-address")
 );
+const fromAddressPathInput= <HTMLInputElement>document.getElementById("from-address-path");
 const utxoCount = <HTMLInputElement>document.getElementById("utxo-count");
 const toAddress = <HTMLInputElement>document.getElementById("to-address");
 
@@ -33,7 +34,8 @@ function pick_trezor_account() {
     if (out.success) {
       console.log("getAccountInfo", out);
       fromAddressN = out.payload.addressPath;
-      fromAddressInput.value = out.payload.address;
+      fromAddressInput.value = out.payload.address
+      fromAddressPathInput.value = out.payload.addressSerializedPath;
       utxoCount.focus();
     } else {
       document.getElementById("from-address-detail").textContent =
