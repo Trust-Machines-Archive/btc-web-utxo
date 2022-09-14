@@ -30,6 +30,17 @@
               <label for="transact-path">From Address (C32):</label>
             </div>
             <div class="form-group">
+            </div>
+            <div class="form-group">
+              <input
+                type="text"
+                id="from-address-path"
+                class="form-control"
+                style="width: 400pt"
+                autocomplete="off"
+                value=""
+                placeholder="HD address path"
+              />
               <button
                 type="button"
                 onClick="pick_trezor_account()"
@@ -41,24 +52,11 @@
             <div class="form-group">
               <input
                 type="text"
-                id="from-address-path"
-                class="form-control"
-                style="width: 400pt"
-                autocomplete="off"
-                value=""
-                disabled
-                placeholder="HD address path"
-              />
-            </div>
-            <div class="form-group">
-              <input
-                type="text"
                 id="from-address"
                 class="form-control"
                 style="width: 400pt"
                 autocomplete="off"
                 value=""
-                disabled
                 placeholder="From Address"
               />
               <div id="from-address-detail"></div>

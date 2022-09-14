@@ -4,6 +4,7 @@
 declare let TrezorConnect: any;
 let everyUTXO = [];
 let fromAddressN;
+let Coin = "Testnet";
 
 const fromAddressInput = <HTMLInputElement>(
   document.getElementById("from-address")
@@ -30,13 +31,15 @@ function tx_detail(tx, idx) {
 
 function pick_trezor_account() {
   document.getElementById("from-address-detail").textContent = "";
-  return TrezorConnect.getAccountInfo({ coin: "btc", details: "txs", tokens: "derived", defaultAccountType: 'legacy' }).then((out) => {
+  let acctInfoParams = { path: fromAddressPathInput.value.trim(), coin: Coin, details: "txs", tokens: "derived", defaultAccountType: 'legacy' }
+  console.log('acctInfoParams', acctInfoParams)
+  return TrezorConnect.getAccountInfo(acctInfoParams).then((out) => {
     if (out.success) {
       console.log("getAccountInfo", out);
       fromAddressN = out.payload.addressPath;
       fromAddressInput.value = out.payload.address
       toAddressInput.value = out.payload.address
-      fromAddressPathInput.value = out.payload.addressSerializedPath;
+      fromAddressPathInput.value = "m/"+out.payload.addressSerializedPath;
       utxoCountInput.focus();
     } else {
       document.getElementById("from-address-detail").textContent =
@@ -52,7 +55,7 @@ function load_utxos() {
   let msg = "Loading " + count + " UTXOs...";
   document.getElementById("from-address-detail").textContent = msg;
   let url =
-    "https://www.bitgo.com/api/v1/address/" +
+    "https://www.bitgo-test.com/api/v1/address/" +
     fromAddressInput.value.trim() +
     "/unspents?limit=" +
     count +
@@ -90,14 +93,14 @@ function bip44_to_int(path) {
       return int_val;
     });
 }
+
 function generate_transfer_uxto() {
-  let coin = "Bitcoin";
   let inputs = everyUTXO.map((tx) => {
     return {
       prev_hash: tx.meta.tx_hash,
       prev_index: tx.meta.tx_output_n,
       amount: "" + tx.meta.value,
-      address_n: fromAddressN,
+      address_n: bip44_to_int(fromAddressPathInput.value.trim()),
       //script_type: "SPENDADDRESS", //script_type,
     };
   });
@@ -119,7 +122,7 @@ function generate_transfer_uxto() {
 
   // https://github.com/trezor/connect/blob/develop/docs/methods/signTransaction.md
   let params = {
-    coin: coin,
+    coin: Coin,
     inputs: inputs,
     outputs: outputs,
     details: {
@@ -133,8 +136,9 @@ function generate_transfer_uxto() {
 
   console.log("signTransaction inputs", params);
   TrezorConnect.signTransaction(params).then(function (result) {
+    console.log("signTransaction output", result);
     if (result.success) {
-      console.log("signTransaction output", result);
+      document.getElementById("post-tx-detail").textContent = "success"
     } else {
       document.getElementById("post-tx-detail").textContent =
         result.payload.error;
