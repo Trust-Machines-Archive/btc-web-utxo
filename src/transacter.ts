@@ -12,7 +12,8 @@ const fromAddressInput = <HTMLInputElement>(
 const fromAddressPathInput= <HTMLInputElement>document.getElementById("from-address-path");
 const utxoCountInput = <HTMLInputElement>document.getElementById("utxo-count");
 const toAddressInput = <HTMLInputElement>document.getElementById("to-address");
-const pushTxInput= <HTMLInputElement>document.getElementById("push-tx");
+const pushTxInput = <HTMLInputElement>document.getElementById("push-tx");
+const txFeeInput = <HTMLInputElement>document.getElementById("tx-fee");
 
 function tx_detail(tx, idx) {
   //let headers = {'User-Agent': 'trezorlib'}
@@ -72,7 +73,7 @@ function load_utxos() {
         let value = everyUTXO.reduce((memo, tx) => memo + tx.value, 0);
         let msg =
           everyUTXO.length + " UTXOs loaded . total BTC: " + value / 10 ** 8;
-        document.getElementById("utxo-count-detail").textContent = msg;
+        document.getElementById("from-address-detail").textContent = msg;
 
         // load individual UTXOs
         return Promise.all(everyUTXO.map((tx, idx) => tx_detail(tx, idx)));
@@ -106,12 +107,15 @@ function generate_transfer_uxto() {
     };
   });
 
+  let tx_size = 1
+  let fee_value = parseInt(txFeeInput.value)
   let value = everyUTXO.reduce((memo, tx) => memo + tx.meta.value, 0);
+  let total = value - (tx_size * fee_value)
   let outputs = [
     {
       address: toAddressInput.value.trim(),
       script_type: "PAYTOADDRESS",
-      amount: "" + value,
+      amount: "" + total,
     },
   ];
   let version = 2;
