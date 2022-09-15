@@ -12,6 +12,10 @@
       .panel-body {
         word-break: break-all;
       }
+      .detail {
+        width: fit-content;
+        margin-top: 1em;
+      }
     </style>
 
     <div class="container">
@@ -27,9 +31,45 @@
         <div class="panel-body">
           <form>
             <div class="form-group">
-              <label for="transact-path">From Address (C32):</label>
+              <label for="transact-path">Find UXTOs From Address:</label>
             </div>
             <div class="form-group">
+            </div>
+            <div class="form-group">
+              <input
+                type="text"
+                id="from-address"
+                class="form-control"
+                style="width: 400pt"
+                autocomplete="off"
+                value=""
+                placeholder="From Address"
+              />
+              <div class="detail" id="from-address-detail"></div>
+            </div>
+            <div class="form-group">
+              <label for="transact-input">UTXO count (1-250):</label>
+              <input
+                type="text"
+                id="utxo-count"
+                class="form-control"
+                style="width: 400pt"
+                autocomplete="off"
+                value=""
+              />
+              <div class="detail" id="utxo-count-detail"></div>
+            </div>
+            <div class="form-group">
+              <button
+                type="button"
+                onClick="load_utxos()"
+                class="btn btn-primary"
+              >
+                Load UTXOs
+              </button>
+            </div>
+            <div class="form-group">
+              <label for="transact-path">Sign UXTO outputs with key:</label>
             </div>
             <div class="form-group">
               <input
@@ -37,8 +77,6 @@
                 id="from-address-path"
                 class="form-control"
                 style="width: 400pt"
-                autocomplete="off"
-                value=""
                 placeholder="HD address path"
               />
               <!--
@@ -52,39 +90,6 @@
               -->
             </div>
             <div class="form-group">
-              <input
-                type="text"
-                id="from-address"
-                class="form-control"
-                style="width: 400pt"
-                autocomplete="off"
-                value=""
-                placeholder="From Address"
-              />
-              <div id="from-address-detail"></div>
-            </div>
-            <div class="form-group">
-              <label for="transact-input">UTXO count (1-250):</label>
-              <input
-                type="text"
-                id="utxo-count"
-                class="form-control"
-                style="width: 400pt"
-                autocomplete="off"
-                value=""
-              />
-              <div id="utxo-count-detail"></div>
-            </div>
-            <div class="form-group">
-              <button
-                type="button"
-                onClick="load_utxos()"
-                class="btn btn-primary"
-              >
-                Load UTXOs
-              </button>
-            </div>
-            <div class="form-group">
               <label for="transact-input">Send To Address (C32):</label>
               <input
                 type="text"
@@ -94,7 +99,7 @@
                 autocomplete="off"
                 value=""
               />
-              <div id="send-address-detail"></div>
+              <div class="detail" id="send-address-detail"></div>
             </div>
             <div class="form-group">
               <button
@@ -104,9 +109,9 @@
               >
                 Sign on Trezor
               </button>
-              <input type="checkbox" id="push-tx"> Publish.</input>
-              Fee <input type="text" id="tx-fee" size=3 placeholder="Fee in satoshis"></input>
-              <div id="post-tx-detail"></div>
+              <input type="checkbox" id="push-tx"> Publish to blockchain</input>
+              and use total Fee in sats <input type="text" id="tx-fee" size=3 ></input>
+              <div class="detail" id="post-tx-detail"></div>
             </div>
           </form>
         </div>

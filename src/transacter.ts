@@ -144,7 +144,7 @@ function generate_transfer_uxto() {
   TrezorConnect.signTransaction(params).then(function (result) {
     console.log("signTransaction output", result);
     if (result.success) {
-      document.getElementById("post-tx-detail").textContent = "success"
+      document.getElementById("post-tx-detail").textContent = "Success"
     } else {
       document.getElementById("post-tx-detail").textContent =
         result.payload.error;
