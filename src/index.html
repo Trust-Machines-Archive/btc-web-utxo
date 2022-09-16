@@ -16,6 +16,9 @@
         width: fit-content;
         margin-top: 1em;
       }
+      .warning {
+        background: #EEA0A0;
+      }
     </style>
 
     <div class="container">
@@ -27,6 +30,9 @@
       <div class="panel panel-default">
         <div class="panel panel-heading panel-heading-custom">
           Transaction Generation
+        </div>
+        <div class="panel-body warning">
+          Warning: Not exhaustively tested. Double check destination, amount, and fee on trezor!
         </div>
         <div class="panel-body">
           <form>
@@ -110,7 +116,7 @@
                 Sign on Trezor
               </button>
               <input type="checkbox" id="push-tx"> Publish to blockchain</input>
-              and use total Fee in sats <input type="text" id="tx-fee" size=3 ></input>
+              and use <span class="warning">total Fee</span> in sats <input type="text" id="tx-fee" size=3 ></input>
               <div class="detail" id="post-tx-detail"></div>
             </div>
           </form>
