@@ -97,9 +97,11 @@ function load_utxos() {
 
         // load individual UTXOs
         return Promise.all(
-          everyUTXO.map((tx, idx) => {return {
-            meta: tx
-          }})
+          everyUTXO.map((tx, idx) => {
+            return {
+              meta: tx,
+            };
+          })
         );
       }
     })
@@ -133,16 +135,27 @@ function generate_transfer_uxto() {
 
   let tx_size = 1; // TODO
   let fee_value = parseInt(txFeeInput.value);
-  if (pushTxInput.checked && !fee_value ) {
-      document.getElementById("post-tx-detail").textContent = "Please set the fee value"
-    return
+  if (pushTxInput.checked && !fee_value) {
+    document.getElementById("post-tx-detail").textContent =
+      "Please set the fee value";
+    return;
   }
   let value = everyUTXO.reduce((memo, tx) => memo + tx.meta.value, 0);
   let total = value - fee_value;
-  console.log('total', total, 'value', value, 'fee_value', fee_value)
-  if (! (total > 0)) {
-      document.getElementById("post-tx-detail").textContent = "Output value / fee value is in error: "+total
-    return
+  console.log("total", total, "value", value, "fee_value", fee_value);
+  if (!(total > 0)) {
+    document.getElementById("post-tx-detail").textContent =
+      "Output value / fee value is in error: " + total;
+    return;
+  }
+  if (fee_value / total > 0.01) {
+    document.getElementById("post-tx-detail").textContent =
+      "total fee " +
+      fee_value +
+      " is more than 1% of total " +
+      total +
+      ". stopping";
+    return;
   }
   let outputs = [
     {
