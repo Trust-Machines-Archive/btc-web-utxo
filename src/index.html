@@ -87,15 +87,6 @@
                 style="width: 400pt"
                 placeholder="HD address path"
               />
-              <!--
-              <button
-                type="button"
-                onClick="pick_trezor_account()"
-                class="btn btn-primary"
-              >
-                Pick Trezor-Controlled Address
-              </button>
-              -->
             </div>
             <div class="form-group">
               <label for="transact-input">Send To Address:</label>
@@ -123,6 +114,31 @@
               <div class="detail" id="post-tx-detail"></div>
             </div>
           </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="panel panel-default">
+        <div class="panel panel-heading panel-heading-custom">
+          Trezor Account Lookup Helper
+        </div>
+
+        <div class="panel-body">
+          <div id="trezor-lookup-detail"></div>
+          <div>
+            <button
+              type="button"
+              onClick="pick_trezor_account()"
+              class="btn btn-primary"
+            >
+              Pick Trezor Account
+            </button>
+          </div>
+          Address:
+          <div id="trezor-lookup-detail-address"></div>
+          Path:
+          <div id="trezor-lookup-detail-path"></div>
         </div>
       </div>
     </div>

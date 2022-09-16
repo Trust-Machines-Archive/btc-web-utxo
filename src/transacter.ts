@@ -3,7 +3,6 @@
 //const TrezorConnect = require('trezor-connect')
 declare let TrezorConnect: any;
 let everyUTXO = [];
-let fromAddressN;
 let Coin = "Bitcoin";
 
 const fromAddressInput = <HTMLInputElement>(
@@ -34,7 +33,7 @@ function tx_detail(tx, idx) {
 }
 
 function pick_trezor_account() {
-  document.getElementById("from-address-detail").textContent = "";
+  document.getElementById("trezor-lookup-detail").textContent = "";
   let acctInfoParams = {
     path: fromAddressPathInput.value.trim(),
     coin: Coin,
@@ -46,13 +45,12 @@ function pick_trezor_account() {
   return TrezorConnect.getAccountInfo(acctInfoParams).then((out) => {
     if (out.success) {
       console.log("getAccountInfo", out);
-      fromAddressN = out.payload.addressPath;
-      fromAddressInput.value = out.payload.address;
-      toAddressInput.value = out.payload.address;
-      fromAddressPathInput.value = "m/" + out.payload.addressSerializedPath;
-      utxoCountInput.focus();
+      document.getElementById("trezor-lookup-detail-address").textContent =
+        out.payload.address;
+      document.getElementById("trezor-lookup-detail-path").textContent =
+        "m/" + out.payload.addressSerializedPath;
     } else {
-      document.getElementById("from-address-detail").textContent =
+      document.getElementById("trezor-lookup-detail").textContent =
         out.payload.error;
     }
   });
@@ -97,9 +95,11 @@ function load_utxos() {
 
         // load individual UTXOs
         return Promise.all(
-          everyUTXO.map((tx, idx) => {return {
-            meta: tx
-          }})
+          everyUTXO.map((tx, idx) => {
+            return {
+              meta: tx,
+            };
+          })
         );
       }
     })
@@ -133,20 +133,27 @@ function generate_transfer_uxto() {
 
   let tx_size = 1; // TODO
   let fee_value = parseInt(txFeeInput.value);
-  if (pushTxInput.checked && !fee_value ) {
-      document.getElementById("post-tx-detail").textContent = "Please set the fee value"
-    return
+  if (pushTxInput.checked && !fee_value) {
+    document.getElementById("post-tx-detail").textContent =
+      "Please set the fee value";
+    return;
   }
   let value = everyUTXO.reduce((memo, tx) => memo + tx.meta.value, 0);
   let total = value - fee_value;
-  console.log('total', total, 'value', value, 'fee_value', fee_value)
-  if (! (total > 0)) {
-      document.getElementById("post-tx-detail").textContent = "Output value / fee value is in error: "+total
-    return
+  console.log("total", total, "value", value, "fee_value", fee_value);
+  if (!(total > 0)) {
+    document.getElementById("post-tx-detail").textContent =
+      "Output value / fee value is in error: " + total;
+    return;
   }
   if (fee_value / total > 0.01) {
-      document.getElementById("post-tx-detail").textContent = "total fee "+fee_value+"(sats) is more than 1% of total "+total+"(sats). stopping"
-    return
+    document.getElementById("post-tx-detail").textContent =
+      "total fee " +
+      fee_value +
+      "(sats) is more than 1% of total " +
+      total +
+      "(sats). stopping";
+    return;
   }
   let outputs = [
     {
