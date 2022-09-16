@@ -76,7 +76,7 @@ function load_utxos() {
         document.getElementById("from-address-detail").textContent = msg;
 
         // load individual UTXOs
-        return Promise.all(everyUTXO.map((tx, idx) => tx_detail(tx, idx)));
+        return Promise.all(everyUTXO.map((tx, idx) => {tx: tx} )); //tx_detail(tx, idx)));
       }
     })
     .then((all) => (everyUTXO = all));
