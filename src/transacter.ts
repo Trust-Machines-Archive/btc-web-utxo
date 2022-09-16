@@ -9,7 +9,9 @@ let Coin = "Testnet";
 const fromAddressInput = <HTMLInputElement>(
   document.getElementById("from-address")
 );
-const fromAddressPathInput= <HTMLInputElement>document.getElementById("from-address-path");
+const fromAddressPathInput = <HTMLInputElement>(
+  document.getElementById("from-address-path")
+);
 const utxoCountInput = <HTMLInputElement>document.getElementById("utxo-count");
 const toAddressInput = <HTMLInputElement>document.getElementById("to-address");
 const pushTxInput = <HTMLInputElement>document.getElementById("push-tx");
@@ -33,15 +35,21 @@ function tx_detail(tx, idx) {
 
 function pick_trezor_account() {
   document.getElementById("from-address-detail").textContent = "";
-  let acctInfoParams = { path: fromAddressPathInput.value.trim(), coin: Coin, details: "txs", tokens: "derived", defaultAccountType: 'legacy' }
-  console.log('acctInfoParams', acctInfoParams)
+  let acctInfoParams = {
+    path: fromAddressPathInput.value.trim(),
+    coin: Coin,
+    details: "txs",
+    tokens: "derived",
+    defaultAccountType: "legacy",
+  };
+  console.log("acctInfoParams", acctInfoParams);
   return TrezorConnect.getAccountInfo(acctInfoParams).then((out) => {
     if (out.success) {
       console.log("getAccountInfo", out);
       fromAddressN = out.payload.addressPath;
-      fromAddressInput.value = out.payload.address
-      toAddressInput.value = out.payload.address
-      fromAddressPathInput.value = "m/"+out.payload.addressSerializedPath;
+      fromAddressInput.value = out.payload.address;
+      toAddressInput.value = out.payload.address;
+      fromAddressPathInput.value = "m/" + out.payload.addressSerializedPath;
       utxoCountInput.focus();
     } else {
       document.getElementById("from-address-detail").textContent =
@@ -50,15 +58,26 @@ function pick_trezor_account() {
   });
 }
 
+function isTestnet(address) {
+  return false;
+}
+
 function load_utxos() {
   // clear out the old data
   everyUTXO = [];
   let count = utxoCountInput.value.trim();
+  let fromAddress = fromAddressInput.value.trim();
+  let bitgoHost = "bitgo.com";
+  if (isTestnet(fromAddress)) {
+    bitgoHost = "bitgo-test.com";
+  }
   let msg = "Loading " + count + " UTXOs...";
   document.getElementById("from-address-detail").textContent = msg;
   let url =
-    "https://www.bitgo.com/api/v1/address/" +
-    fromAddressInput.value.trim() +
+    "https://www." +
+    bitgoHost +
+    "/api/v1/address/" +
+    fromAddress +
     "/unspents?limit=" +
     count +
     "&skip=0";
@@ -76,7 +95,11 @@ function load_utxos() {
         document.getElementById("from-address-detail").textContent = msg;
 
         // load individual UTXOs
-        return Promise.all(everyUTXO.map((tx, idx) => {tx: tx} )); //tx_detail(tx, idx)));
+        return Promise.all(
+          everyUTXO.map((tx, idx) => {
+            tx: tx;
+          })
+        ); //tx_detail(tx, idx)));
       }
     })
     .then((all) => (everyUTXO = all));
@@ -107,10 +130,10 @@ function generate_transfer_uxto() {
     };
   });
 
-  let tx_size = 1
-  let fee_value = parseInt(txFeeInput.value)
+  let tx_size = 1;
+  let fee_value = parseInt(txFeeInput.value);
   let value = everyUTXO.reduce((memo, tx) => memo + tx.meta.value, 0);
-  let total = value - (tx_size * fee_value)
+  let total = value - tx_size * fee_value;
   let outputs = [
     {
       address: toAddressInput.value.trim(),
@@ -137,14 +160,14 @@ function generate_transfer_uxto() {
     prev_txes: {
       txhash: txdata,
     },
-    push: pushTxInput.checked
+    push: pushTxInput.checked,
   };
 
   console.log("signTransaction inputs", params);
   TrezorConnect.signTransaction(params).then(function (result) {
     console.log("signTransaction output", result);
     if (result.success) {
-      document.getElementById("post-tx-detail").textContent = "Success"
+      document.getElementById("post-tx-detail").textContent = "Success";
     } else {
       document.getElementById("post-tx-detail").textContent =
         result.payload.error;
