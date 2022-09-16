@@ -57,7 +57,7 @@ function load_utxos() {
   let msg = "Loading " + count + " UTXOs...";
   document.getElementById("from-address-detail").textContent = msg;
   let url =
-    "https://www.bitgo-test.com/api/v1/address/" +
+    "https://www.bitgo.com/api/v1/address/" +
     fromAddressInput.value.trim() +
     "/unspents?limit=" +
     count +
