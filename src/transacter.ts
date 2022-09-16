@@ -139,6 +139,11 @@ function generate_transfer_uxto() {
     return;
   }
   let value = everyUTXO.reduce((memo, tx) => memo + tx.meta.value, 0);
+  if (!(value > 0)) {
+    document.getElementById("post-tx-detail").textContent =
+      "Input value is " + value + ". use Load UTXOs button.";
+    return;
+  }
   let total = value - fee_value;
   console.log("total", total, "value", value, "fee_value", fee_value);
   if (!(total > 0)) {
