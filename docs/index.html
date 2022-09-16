@@ -1,0 +1,146 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="bootstrap.min.css" />
+  </head>
+  <body>
+    <!-- included script is a browserified version of:
+     https://github.com/bitcoinjs/bitcoinjs-lib  -->
+    <script src="./distribute.js" defer></script>
+    <script src="https://connect.trezor.io/5/trezor-connect.js"></script>
+    <script src="./transacter.js" defer></script>
+    <style>
+      .panel-body {
+        word-break: break-all;
+      }
+      .detail {
+        width: fit-content;
+        margin-top: 1em;
+      }
+      .warning {
+        background: #eea0a0;
+      }
+    </style>
+
+    <div class="container">
+      <h2>Bitcoin UTXO Transaction Builder Tool</h2>
+    </div>
+
+    <div class="container">
+      <div class="panel panel-default">
+        <div class="panel panel-heading panel-heading-custom">
+          Transaction Generation
+        </div>
+        <div class="panel-body warning">
+          Warning: Not exhaustively tested. Double check destination, amount,
+          and fee on trezor!
+        </div>
+        <div class="panel-body">
+          <form>
+            <div class="form-group">
+              <label for="transact-path">Find UTXOs From Address:</label>
+            </div>
+            <div class="form-group"></div>
+            <div class="form-group">
+              <input
+                type="text"
+                id="from-address"
+                class="form-control"
+                style="width: 400pt"
+                autocomplete="off"
+                value=""
+                placeholder="From Address"
+              />
+              <div class="detail" id="from-address-detail"></div>
+            </div>
+            <div class="form-group">
+              <label for="transact-input">UTXO count (1-250):</label>
+              <input
+                type="text"
+                id="utxo-count"
+                class="form-control"
+                style="width: 400pt"
+                autocomplete="off"
+                value=""
+              />
+              <div class="detail" id="utxo-count-detail"></div>
+            </div>
+            <div class="form-group">
+              <button
+                type="button"
+                onClick="load_utxos()"
+                class="btn btn-primary"
+              >
+                Load UTXOs
+              </button>
+            </div>
+            <div class="form-group">
+              <label for="transact-path"
+                >Sign UTXO outputs with trezor key path:</label
+              >
+              <div>This key path must match the from address entered above</div>
+            </div>
+            <div class="form-group">
+              <input
+                type="text"
+                id="from-address-path"
+                class="form-control"
+                style="width: 400pt"
+                placeholder="HD address path"
+              />
+            </div>
+            <div class="form-group">
+              <label for="transact-input">Send To Address:</label>
+              <input
+                type="text"
+                id="to-address"
+                class="form-control"
+                style="width: 400pt"
+                autocomplete="off"
+                value=""
+              />
+              <div class="detail" id="send-address-detail"></div>
+            </div>
+            <div class="form-group">
+              <button
+                type="button"
+                onClick="generate_transfer_uxto()"
+                class="btn btn-primary"
+              >
+                Sign on Trezor
+              </button>
+              <input type="checkbox" id="push-tx" /> Publish to blockchain and
+              use <span class="warning">total Fee</span> in sats
+              <input type="text" id="tx-fee" size="3" />
+              <div class="detail" id="post-tx-detail"></div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="panel panel-default">
+        <div class="panel panel-heading panel-heading-custom">
+          Trezor Account Lookup Helper
+        </div>
+
+        <div class="panel-body">
+          <div id="trezor-lookup-detail"></div>
+          <div>
+            <button
+              type="button"
+              onClick="pick_trezor_account()"
+              class="btn btn-primary"
+            >
+              Pick Trezor Account
+            </button>
+          </div>
+          Address:
+          <div id="trezor-lookup-detail-address"></div>
+          Path:
+          <div id="trezor-lookup-detail-path"></div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
