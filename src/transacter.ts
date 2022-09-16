@@ -4,7 +4,7 @@
 declare let TrezorConnect: any;
 let everyUTXO = [];
 let fromAddressN;
-let Coin = "Testnet";
+let Coin = "Bitcoin";
 
 const fromAddressInput = <HTMLInputElement>(
   document.getElementById("from-address")
@@ -81,6 +81,7 @@ function load_utxos() {
     "/unspents?limit=" +
     count +
     "&skip=0";
+  console.log(url);
   return fetch(url)
     .then((result) => result.json())
     .then((response) => {
@@ -96,10 +97,10 @@ function load_utxos() {
 
         // load individual UTXOs
         return Promise.all(
-          everyUTXO.map((tx, idx) => {
-            tx: tx;
-          })
-        ); //tx_detail(tx, idx)));
+          everyUTXO.map((tx, idx) => {return {
+            meta: tx
+          }})
+        );
       }
     })
     .then((all) => (everyUTXO = all));
@@ -130,10 +131,19 @@ function generate_transfer_uxto() {
     };
   });
 
-  let tx_size = 1;
+  let tx_size = 1; // TODO
   let fee_value = parseInt(txFeeInput.value);
+  if (pushTxInput.checked && !fee_value ) {
+      document.getElementById("post-tx-detail").textContent = "Please set the fee value"
+    return
+  }
   let value = everyUTXO.reduce((memo, tx) => memo + tx.meta.value, 0);
-  let total = value - tx_size * fee_value;
+  let total = value - fee_value;
+  console.log('total', total, 'value', value, 'fee_value', fee_value)
+  if (! (total > 0)) {
+      document.getElementById("post-tx-detail").textContent = "Output value / fee value is in error: "+total
+    return
+  }
   let outputs = [
     {
       address: toAddressInput.value.trim(),
