@@ -1,3 +1,8 @@
+//import TrezorConnect from '@trezor/connect';
+//import TrezorConnect from '@trezor/connect-web';
+//const TrezorConnect = require('trezor-connect')
+//declare let TrezorConnect: any;
+var TrezorConnect = window.TrezorConnect;
 let everyUTXO = [];
 let Coin = "Bitcoin";
 const fromAddressInput = (document.getElementById("from-address"));
@@ -6,6 +11,13 @@ const utxoCountInput = document.getElementById("utxo-count");
 const toAddressInput = document.getElementById("to-address");
 const pushTxInput = document.getElementById("push-tx");
 const txFeeInput = document.getElementById("tx-fee");
+TrezorConnect.init({
+    lazyLoad: true,
+    manifest: {
+        email: 'core-eng@trustmachines.co',
+        appUrl: 'http://trustmachines.co',
+    },
+});
 function tx_detail(tx, idx) {
     //let headers = {'User-Agent': 'trezorlib'}
     //let webserver = (idx % 5) + 1
@@ -108,7 +120,7 @@ function generate_transfer_uxto() {
             prev_index: tx.meta.tx_output_n,
             amount: "" + tx.meta.value,
             address_n: bip44_to_int(fromAddressPathInput.value.trim()),
-            //script_type: "SPENDADDRESS", //script_type,
+            script_type: "SPENDP2SHWITNESS",
         };
     });
     let tx_size = 1; // TODO
@@ -121,7 +133,7 @@ function generate_transfer_uxto() {
     let value = everyUTXO.reduce((memo, tx) => memo + tx.meta.value, 0);
     if (!(value > 0)) {
         document.getElementById("post-tx-detail").textContent =
-            "Input value is " + value + ". stopping. use Load UTXOs button";
+            "Input value is " + value + ". use Load UTXOs button.";
         return;
     }
     let total = value - fee_value;
