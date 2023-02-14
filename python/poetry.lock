@@ -1,6 +1,6 @@
 [[package]]
 name = "bitcoinlib"
-version = "0.6.5"
+version = "0.6.7"
 description = "Bitcoin and Other cryptocurrency Library"
 category = "main"
 optional = false
@@ -8,7 +8,7 @@ python-versions = "*"
 
 [package.dependencies]
 ecdsa = {version = ">=0.17", markers = "platform_system == \"Windows\""}
-fastecdsa = {version = ">=2.2.3", markers = "platform_system != \"Windows\""}
+fastecdsa = {version = ">=2.2.1", markers = "platform_system != \"Windows\""}
 numpy = {version = ">=1.21.0", markers = "python_version >= \"3.8\""}
 pycryptodome = ">=3.14.1"
 requests = ">=2.25.0"
@@ -16,7 +16,7 @@ SQLAlchemy = ">=1.4.28"
 
 [[package]]
 name = "certifi"
-version = "2022.6.15"
+version = "2022.12.7"
 description = "Python package for providing Mozilla's CA Bundle."
 category = "main"
 optional = false
@@ -24,14 +24,11 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "charset-normalizer"
-version = "2.1.1"
+version = "3.0.1"
 description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
 category = "main"
 optional = false
-python-versions = ">=3.6.0"
-
-[package.extras]
-unicode_backport = ["unicodedata2"]
+python-versions = "*"
 
 [[package]]
 name = "click"
@@ -46,11 +43,11 @@ colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
 name = "colorama"
-version = "0.4.5"
+version = "0.4.6"
 description = "Cross-platform colored terminal text."
 category = "main"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
 
 [[package]]
 name = "construct"
@@ -62,6 +59,17 @@ python-versions = ">=3.6"
 
 [package.extras]
 extras = ["arrow", "cloudpickle", "enum34", "lz4", "numpy", "ruamel.yaml"]
+
+[[package]]
+name = "construct-classes"
+version = "0.1.2"
+description = "Parse your binary structs into dataclasses"
+category = "main"
+optional = false
+python-versions = ">=3.6.2,<4.0"
+
+[package.dependencies]
+construct = ">=2.10,<3.0"
 
 [[package]]
 name = "ecdsa"
@@ -80,26 +88,27 @@ gmpy2 = ["gmpy2"]
 
 [[package]]
 name = "fastecdsa"
-version = "2.2.3"
+version = "2.3.1"
 description = "Fast elliptic curve digital signatures"
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = ">=3.7"
 
 [[package]]
 name = "greenlet"
-version = "1.1.3"
+version = "2.0.2"
 description = "Lightweight in-process concurrent programming"
 category = "main"
 optional = false
 python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*"
 
 [package.extras]
-docs = ["sphinx"]
+docs = ["sphinx", "docutils (<0.18)"]
+test = ["objgraph", "psutil"]
 
 [[package]]
 name = "idna"
-version = "3.3"
+version = "3.4"
 description = "Internationalized Domain Names in Applications (IDNA)"
 category = "main"
 optional = false
@@ -123,15 +132,15 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "numpy"
-version = "1.23.2"
-description = "NumPy is the fundamental package for array computing with Python."
+version = "1.24.2"
+description = "Fundamental package for array computing in Python"
 category = "main"
 optional = false
 python-versions = ">=3.8"
 
 [[package]]
 name = "pycryptodome"
-version = "3.15.0"
+version = "3.17"
 description = "Cryptographic library for Python"
 category = "main"
 optional = false
@@ -139,7 +148,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "requests"
-version = "2.28.1"
+version = "2.28.2"
 description = "Python HTTP for Humans."
 category = "main"
 optional = false
@@ -147,7 +156,7 @@ python-versions = ">=3.7, <4"
 
 [package.dependencies]
 certifi = ">=2017.4.17"
-charset-normalizer = ">=2,<3"
+charset-normalizer = ">=2,<4"
 idna = ">=2.5,<4"
 urllib3 = ">=1.21.1,<1.27"
 
@@ -157,7 +166,7 @@ use_chardet_on_py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "simple-rlp"
-version = "0.1.2"
+version = "0.1.3"
 description = "RLP (Recursive Length Prefix) - Encode and decode data structures"
 category = "main"
 optional = false
@@ -173,39 +182,42 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "sqlalchemy"
-version = "1.4.41"
+version = "2.0.3"
 description = "Database Abstraction Library"
 category = "main"
 optional = false
-python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,>=2.7"
+python-versions = ">=3.7"
 
 [package.dependencies]
-greenlet = {version = "!=0.4.17", markers = "python_version >= \"3\" and (platform_machine == \"aarch64\" or platform_machine == \"ppc64le\" or platform_machine == \"x86_64\" or platform_machine == \"amd64\" or platform_machine == \"AMD64\" or platform_machine == \"win32\" or platform_machine == \"WIN32\")"}
+greenlet = {version = "!=0.4.17", markers = "platform_machine == \"aarch64\" or platform_machine == \"ppc64le\" or platform_machine == \"x86_64\" or platform_machine == \"amd64\" or platform_machine == \"AMD64\" or platform_machine == \"win32\" or platform_machine == \"WIN32\""}
+typing-extensions = ">=4.2.0"
 
 [package.extras]
 aiomysql = ["greenlet (!=0.4.17)", "aiomysql"]
-aiosqlite = ["typing_extensions (!=3.10.0.1)", "greenlet (!=0.4.17)", "aiosqlite"]
+aiosqlite = ["greenlet (!=0.4.17)", "aiosqlite", "typing-extensions (!=3.10.0.1)"]
 asyncio = ["greenlet (!=0.4.17)"]
-asyncmy = ["greenlet (!=0.4.17)", "asyncmy (>=0.2.3,!=0.2.4)"]
-mariadb_connector = ["mariadb (>=1.0.1,!=1.1.2)"]
+asyncmy = ["greenlet (!=0.4.17)", "asyncmy (>=0.2.3,!=0.2.4,!=0.2.6)"]
+mariadb_connector = ["mariadb (>=1.0.1,!=1.1.2,!=1.1.5)"]
 mssql = ["pyodbc"]
 mssql_pymssql = ["pymssql"]
 mssql_pyodbc = ["pyodbc"]
-mypy = ["sqlalchemy2-stubs", "mypy (>=0.910)"]
-mysql = ["mysqlclient (>=1.4.0,<2)", "mysqlclient (>=1.4.0)"]
+mypy = ["mypy (>=0.910)"]
+mysql = ["mysqlclient (>=1.4.0)"]
 mysql_connector = ["mysql-connector-python"]
-oracle = ["cx_oracle (>=7,<8)", "cx_oracle (>=7)"]
+oracle = ["cx-oracle (>=7)"]
+oracle_oracledb = ["oracledb (>=1.0.1)"]
 postgresql = ["psycopg2 (>=2.7)"]
 postgresql_asyncpg = ["greenlet (!=0.4.17)", "asyncpg"]
-postgresql_pg8000 = ["pg8000 (>=1.16.6,!=1.29.0)"]
+postgresql_pg8000 = ["pg8000 (>=1.29.1)"]
+postgresql_psycopg = ["psycopg (>=3.0.7)"]
 postgresql_psycopg2binary = ["psycopg2-binary"]
 postgresql_psycopg2cffi = ["psycopg2cffi"]
-pymysql = ["pymysql (<1)", "pymysql"]
+pymysql = ["pymysql"]
 sqlcipher = ["sqlcipher3-binary"]
 
 [[package]]
 name = "trezor"
-version = "0.13.3"
+version = "0.13.5"
 description = "Python library for communicating with Trezor Hardware Wallet"
 category = "main"
 optional = false
@@ -214,6 +226,7 @@ python-versions = ">=3.6"
 [package.dependencies]
 click = ">=7,<8.2"
 construct = ">=2.9,<2.10.55 || >2.10.55"
+construct-classes = ">=0.1.2"
 ecdsa = ">=0.9"
 libusb1 = ">=1.6.4"
 mnemonic = ">=0.20"
@@ -231,7 +244,7 @@ stellar = ["stellar-sdk (>=4.0.0,<6.0.0)"]
 
 [[package]]
 name = "typing-extensions"
-version = "4.3.0"
+version = "4.4.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
 category = "main"
 optional = false
@@ -239,11 +252,11 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "urllib3"
-version = "1.26.12"
+version = "1.26.14"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 category = "main"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*, <4"
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
 
 [package.extras]
 brotli = ["brotlicffi (>=0.8.0)", "brotli (>=1.0.9)", "brotlipy (>=0.6.0)"]
@@ -262,6 +275,7 @@ charset-normalizer = []
 click = []
 colorama = []
 construct = []
+construct-classes = []
 ecdsa = []
 fastecdsa = []
 greenlet = []
