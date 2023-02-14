@@ -1,7 +1,8 @@
 //import TrezorConnect from '@trezor/connect';
 //import TrezorConnect from '@trezor/connect-web';
 //const TrezorConnect = require('trezor-connect')
-declare let TrezorConnect: any;
+//declare let TrezorConnect: any;
+var TrezorConnect = window.TrezorConnect;
 let everyUTXO = [];
 let Coin = "Bitcoin";
 
@@ -15,6 +16,14 @@ const utxoCountInput = <HTMLInputElement>document.getElementById("utxo-count");
 const toAddressInput = <HTMLInputElement>document.getElementById("to-address");
 const pushTxInput = <HTMLInputElement>document.getElementById("push-tx");
 const txFeeInput = <HTMLInputElement>document.getElementById("tx-fee");
+
+TrezorConnect.init({
+    lazyLoad: true, // this param will prevent iframe injection until TrezorConnect.method will be called
+    manifest: {
+        email: 'core-eng@trustmachines.co',
+        appUrl: 'http://trustmachines.co',
+    },
+});
 
 function tx_detail(tx, idx) {
   //let headers = {'User-Agent': 'trezorlib'}

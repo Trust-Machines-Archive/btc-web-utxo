@@ -16,8 +16,8 @@
   "license": "MIT",
   "repository": "github:hirosystems/multisig-stx-btc",
   "dependencies": {
-    "browserify": "^16.2.2",
-    "trezor-connect": "8.2.11"
+    "@trezor/connect-web": "^9.0.6",
+    "browserify": "^17.0.0"
   },
   "devDependencies": {
     "prettier": "2.7.1",
