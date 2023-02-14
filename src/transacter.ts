@@ -127,7 +127,7 @@ function generate_transfer_uxto() {
       prev_index: tx.meta.tx_output_n,
       amount: "" + tx.meta.value,
       address_n: bip44_to_int(fromAddressPathInput.value.trim()),
-      //script_type: "SPENDADDRESS", //script_type,
+      script_type: "SPENDP2SHWITNESS",
     };
   });
 
